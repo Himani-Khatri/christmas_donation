@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signup</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    animation: shimmer 10s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.floating-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.shape {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(255, 59, 59, 0.3), rgba(67, 233, 123, 0.3));
+    border-radius: 50%;
+    animation: float 20s infinite ease-in-out;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.shape:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    left: 10%;
+    top: 20%;
+    animation-delay: 0s;
+    background: linear-gradient(135deg, rgba(255, 59, 59, 0.4), rgba(255, 215, 0, 0.4));
+}
+
+.shape:nth-child(2) {
+    width: 120px;
+    height: 120px;
+    right: 15%;
+    top: 60%;
+    animation-delay: 2s;
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.4), rgba(255, 255, 255, 0.3));
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+.shape:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    left: 60%;
+    top: 10%;
+    animation-delay: 4s;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 59, 59, 0.3));
+}
+
+.shape:nth-child(4) {
+    width: 90px;
+    height: 90px;
+    left: 20%;
+    bottom: 15%;
+    animation-delay: 6s;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(67, 233, 123, 0.4));
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+    }
+    25% {
+        transform: translateY(-30px) translateX(20px) rotate(90deg) scale(1.1);
+    }
+    50% {
+        transform: translateY(-60px) translateX(-20px) rotate(180deg) scale(0.9);
+    }
+    75% {
+        transform: translateY(-30px) translateX(20px) rotate(270deg) scale(1.05);
+    }
+}
+
+form {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 50px 60px;
+    border-radius: 30px;
+    box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        inset 0 0 60px rgba(255, 215, 0, 0.05);
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+    transform-style: preserve-3d;
+    animation: formEntrance 1s ease-out;
+}
+
+@keyframes formEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(50px) rotateX(-15deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+form::before {
+    content: '🎄';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 50px;
+    animation: bounce 2s infinite ease-in-out;
+}
+
+form::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        #ff3b3b, 
+        #ffd700, 
+        #43e97b, 
+        #fff);
+    border-radius: 30px;
+    z-index: -1;
+    opacity: 0;
+    animation: borderGlow 3s infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+.form-content {
+    position: relative;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    animation: slideIn 0.6s ease-out backwards;
+}
+
+.input-group:nth-child(1) { animation-delay: 0.1s; }
+.input-group:nth-child(2) { animation-delay: 0.2s; }
+.input-group:nth-child(3) { animation-delay: 0.3s; }
+.input-group:nth-child(4) { animation-delay: 0.4s; }
+.input-group:nth-child(5) { animation-delay: 0.5s; }
+.input-group:nth-child(6) { animation-delay: 0.6s; }
+.input-group:nth-child(7) { animation-delay: 0.7s; }
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c5364;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="phone"],
+input[type="password"],
+input[type="date"] {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid rgba(44, 83, 100, 0.2);
+    border-radius: 15px;
+    font-size: 15px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.9);
+    color: #2c5364;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="phone"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus {
+    outline: none;
+    border-color: #43e97b;
+    background: #fff;
+    box-shadow: 
+        0 8px 25px rgba(67, 233, 123, 0.2),
+        0 0 0 4px rgba(67, 233, 123, 0.1);
+    transform: translateY(-2px);
+}
+
+input[type="radio"] {
+    margin: 0 8px 0 15px;
+    accent-color: #ff3b3b;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+input[type="radio"]:first-of-type {
+    margin-left: 0;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #ff3b3b 0%, #ff6b6b 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 30px rgba(255, 59, 59, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button[type="submit"]:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 59, 59, 0.5);
+}
+
+button[type="submit"]:active {
+    transform: translateY(-1px);
+}
+
+.login-link {
+    display: block;
+    text-align: center;
+    margin-top: 25px;
+    color: #2c5364;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.login-link:hover {
+    color: #43e97b;
+    transform: translateX(5px);
+}
+
+br {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    form {
+        padding: 40px 30px;
+    }
+    
+    body {
+        padding: 10px;
+    }
+}
+
+/* Snowfall Effect */
+@keyframes snowfall {
+    0% {
+        transform: translateY(-10vh) translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(110vh) translateX(100px);
+        opacity: 0.3;
+    }
+}
+
+body::after {
+    content: '❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️';
+    position: fixed;
+    top: -10%;
+    left: 0;
+    width: 100%;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    animation: snowfall 15s linear infinite;
+    pointer-events: none;
+    letter-spacing: 80px;
+    z-index: 100;
+}
+</style>
+</head>
+<body>
+<div class="floating-shapes">
+<div class="shape"></div>
+<div class="shape"></div>
+<div class="shape"></div>
+<div class="shape"></div>
+</div>
+<form action="{{ route('store') }}" method="post" enctype="multipart/form-data">
+<div class="form-content">
+@csrf
+<div class="input-group">
+<label for="fname">Full Name:</label>
+<input type="text" name="fname" id="fname" placeholder="Write your fullname" value="{{ old('fname') }}" required>
+</div>
+<br><br>
+<div class="input-group">
+<label for="email">Email:</label>
+<input type="email" name="email" id="email" placeholder="your.email@example.com" value="{{ old('email') }}" required>
+</div>
+<br><br>
+<div class="input-group">
+<label for="phone">Phone number:</label>
+<input type="phone" name="phone" id="phone" placeholder="1234567890" value="{{ old('phone') }}" required>
+</div>
+<br><br>
+<div class="input-group">
+<label for="gender">Gender:</label>
+<input type="radio" name="gender" id="male" value="male" required>Male
+<input type="radio" name="gender" id="female" value="female" required>Female
+<input type="radio" name="gender" id="other" value="other" required>Other
+</div>
+<br><br>
+<div class="input-group">
+<label for="password">Password:</label>
+<input type="password" name="password" id="password" placeholder="Create a strong password" required>
+</div>
+<br><br>
+<div class="input-group">
+<label for="password_confirmation">Re-Password:</label>
+<input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm your password" required>
+</div>
+<br><br>
+<div class="input-group">
+<label for="date">Date of birth:</label>
+<input type="date" name="date" id="date" value="{{ old('date') }}" required>
+</div>
+<br><br>
+@if($errors->any())
+<div style="color:red;">
+<ul>
+@foreach($errors->all() as $error)
+<li>{{ $error }}</li>
+@endforeach
+</ul>
+</div>
+@endif
+<button type="submit">Sign Up</button>
+<a href="{{ route('donationUser.login') }}" class="login-link">Already have an account? Login →</a>
+</div>
+</form>
+</body>
+</html>

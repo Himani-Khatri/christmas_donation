@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class donationList extends Model
+{
+    protected $table='donation_lists';
+    protected $fillable=[
+        'user_id',
+        'full_name',
+        'type',
+        'amount',
+        'payment_status'
+    ];
+}
