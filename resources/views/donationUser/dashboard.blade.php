@@ -187,7 +187,7 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script src="{{ asset('js/dashboard.js') }}"></script>
 
 </body>
 </html>
