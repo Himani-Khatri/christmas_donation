@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\donationUserController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\KhaltiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -10,7 +11,7 @@ Route::get('/', function () {
 
 Route::get('/signup', [donationUserController::class, 'donationUser_signup'])->name('donationUser.signup');
 Route::post('/store', [donationUserController::class, 'store'])->name('store');
-Route::post('/donation/store', [donationUserController::class, 'store_donationLists'])->name('store_donationLists');
+Route::post('/donations/store', [donationUserController::class, 'store_donationLists'])->name('store_donationLists');
 
 // Payment page
 Route::get('/payment/{id}', [donationUserController::class, 'payment'])->name('payment');
@@ -41,3 +42,11 @@ Route::post('/admin/campaigns/store', [CampaignController::class, 'admin_store']
 // User Campaign Routes
 Route::get('/campaigns', [CampaignController::class, 'user_campaigns'])->name('campaign.list');
 Route::get('/campaigns/{id}', [CampaignController::class, 'user_campaign_show'])->name('campaign.show');
+
+
+Route::middleware('web')->group(function () {
+    Route::get('/dashboard', [DonationUserController::class, 'dashboard'])->name('dashboard');
+    Route::post('/store-donation', [DonationUserController::class, 'store_donationLists'])->name('store_donationLists');
+
+    Route::post('/khalti-verify', [KhaltiController::class, 'verify'])->name('khalti.verify');
+});

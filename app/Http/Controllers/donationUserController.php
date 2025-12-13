@@ -61,15 +61,23 @@ class donationUserController extends Controller
     }
 
     public function dashboard()
-    {
-        // Current user donations
-        $donations = donationList::where('user_id', session('user_id'))->get();
-
-        // All money donations from all users
-        $allMoneyDonations = donationList::where('type', 'money')->get();
-
-        return view('donationUser.dashboard', compact('donations', 'allMoneyDonations'));
+{
+    if (!session('user_id')) {
+        return redirect()->route('donationUser.login')->with('error', 'Please login first!');
     }
+
+    $donations = DonationList::where('user_id', session('user_id'))->get();
+    $allMoneyDonations = DonationList::where('type', 'money')->get();
+
+    return view('donationUser.dashboard', [
+        'donations' => $donations,
+        'allMoneyDonations' => $allMoneyDonations,
+        'khaltiKey' => env('KHALTI_PUBLIC_KEY') // pass public key to Blade
+    ]);
+}
+
+
+
 
     public function create_donationLists()
     {
@@ -77,42 +85,26 @@ class donationUserController extends Controller
     }
 
     public function store_donationLists(Request $request)
-    {
-        $request->validate([
-            'full_name' => 'required',
-            'type' => 'required',
-            'amount' => $request->type === 'money' ? 'required|numeric|min:10' : 'nullable',
-        ]);
+{
+    $request->validate([
+        'full_name' => 'required',
+        'type' => 'required',
+        'amount' => $request->type === 'money' ? 'required|numeric|min:10' : 'nullable',
+    ]);
 
-        $donationList = new donationList();
-        $donationList->user_id = session('user_id');
-        $donationList->full_name = $request->full_name;
-        $donationList->type = $request->type;
-        $donationList->amount = $request->type === 'money' ? $request->amount : null;
-        $donationList->payment_status = $request->type === 'money' ? 'pending' : 'not_required';
-        $donationList->save();
+    $donation = new donationList();
+    $donation->user_id = session('user_id');
+    $donation->full_name = $request->full_name;
+    $donation->type = $request->type;
+    $donation->amount = $request->type === 'money' ? $request->amount : null;
+    $donation->payment_status = $request->type === 'money' ? 'pending' : 'not_required';
+    $donation->save();
 
-        
+    return response()->json(['success' => true, 'donation_id' => $donation->id, 'message' => 'Donation created!']);
+}
 
-        return redirect()->route('dashboard')->with('success', 'Donation submitted successfully!');
-    }
 
-    // Manual Payment Page
-    public function payment($id)
-    {
-        $donation = donationList::findOrFail($id);
-        return view('donationUser.payment', compact('donation'));
-    }
 
-    // Manual Payment Success
-    public function paymentSuccess(Request $request, $id)
-    {
-        $donation = donationList::findOrFail($id);
-        $donation->payment_status = 'completed';
-        $donation->save();
-
-        return redirect()->route('dashboard')->with('success', 'Payment completed successfully!');
-    }
 
     public function landing()
     {
@@ -129,4 +121,6 @@ class donationUserController extends Controller
     {
         return view('donationUser.campaigns');
     }
+
+     
 }
