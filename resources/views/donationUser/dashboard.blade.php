@@ -1,180 +1,861 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Christmas Donation Dashboard</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>Khalti Donation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://khalti.com/static/khalti-checkout.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            animation: shimmer 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        body::after {
+            content: '❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️ ❄️';
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            font-size: 25px;
+            color: rgba(255, 255, 255, 0.6);
+            animation: snowfall 20s linear infinite;
+            pointer-events: none;
+            letter-spacing: 120px;
+            z-index: 2;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) translateX(50px) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        .navbar {
+            width: 100%;
+            background: linear-gradient(135deg, #c8102e 0%, #a00d24 100%);
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(200, 16, 46, 0.4);
+            position: relative;
+            z-index: 100;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .navbar::before {
+            content: '🎄';
+            position: absolute;
+            left: 20px;
+            font-size: 30px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        .navbar::after {
+            content: '🎅';
+            position: absolute;
+            right: 20px;
+            font-size: 30px;
+            animation: wave 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(20deg); }
+            75% { transform: rotate(-20deg); }
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .nav-left a,
+        .nav-right a {
+            margin: 0 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-left a::before,
+        .nav-right a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ffd700, #fff);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-left a:hover,
+        .nav-right a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .nav-left a:hover::before,
+        .nav-right a:hover::before {
+            width: 80%;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 80px 80px 40px 80px;
+            position: relative;
+            z-index: 10;
+            gap: 60px;
+        }
+
+        .hero::before {
+            content: '⭐';
+            position: absolute;
+            top: 50px;
+            left: 10%;
+            font-size: 40px;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        .hero::after {
+            content: '🎁';
+            position: absolute;
+            bottom: 50px;
+            right: 10%;
+            font-size: 40px;
+            animation: float 4s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.4; transform: scale(1.3) rotate(180deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .hero-text {
+            width: 50%;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-img {
+            width: 45%;
+            animation: slideInRight 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-img::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            background: linear-gradient(45deg, #ff3b3b, #ffd700, #43e97b, #fff);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.6;
+            animation: borderRotate 4s linear infinite;
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-img img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(255, 215, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-img:hover img {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(255, 215, 0, 0.5);
+        }
+        
+/* Payment Gateway Section - Premium Christmas Theme */
+.container {
+    padding: 60px 20px 100px 20px;
+    background: transparent;
+    min-height: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.container::before {
+    content: '🎁';
+    position: absolute;
+    top: 20px;
+    left: 15%;
+    font-size: 50px;
+    opacity: 0.15;
+    animation: float 6s infinite ease-in-out;
+    z-index: 0;
+}
+
+.container::after {
+    content: '⭐';
+    position: absolute;
+    bottom: 20px;
+    right: 15%;
+    font-size: 50px;
+    opacity: 0.15;
+    animation: twinkle 4s infinite ease-in-out;
+    z-index: 0;
+}
+
+.row {
+    position: relative;
+    z-index: 10;
+}
+
+/* Card Styling - Premium Design */
+.card {
+    border: none;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 
+        0 30px 90px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    position: relative;
+    animation: cardEntrance 0.8s ease-out;
+    backdrop-filter: blur(20px);
+}
+
+@keyframes cardEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, #ff3b3b, #ffd700, #43e97b, #5c2d91);
+    border-radius: 30px;
+    z-index: -1;
+    opacity: 0;
+    animation: borderPulse 4s ease-in-out infinite;
+    background-size: 300% 300%;
+}
+
+@keyframes borderPulse {
+    0%, 100% { 
+        opacity: 0;
+        background-position: 0% 50%;
+    }
+    50% { 
+        opacity: 0.8;
+        background-position: 100% 50%;
+    }
+}
+
+.card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 
+        0 40px 100px rgba(92, 45, 145, 0.5),
+        0 0 60px rgba(255, 215, 0, 0.3);
+}
+
+.card:hover::before {
+    animation: borderPulse 2s ease-in-out infinite;
+}
+
+/* Premium Heading with Gradient */
+.card h4 {
+    background: linear-gradient(135deg, #5c2d91 0%, #c8102e 50%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 900;
+    font-size: 36px;
+    margin-bottom: 35px;
+    text-align: center;
+    padding-top: 15px;
+    position: relative;
+    animation: textShine 3s ease-in-out infinite;
+    background-size: 200% 200%;
+}
+
+@keyframes textShine {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.card h4::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #5c2d91, transparent);
+    border-radius: 2px;
+}
+
+/* Premium Form Controls */
+.form-control {
+    border: 3px solid transparent;
+    border-radius: 18px;
+    padding: 20px 25px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a2e;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.05),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.form-control:hover {
+    background: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.05),
+        0 8px 20px rgba(92, 45, 145, 0.15);
+    border-color: rgba(92, 45, 145, 0.2);
+}
+
+.form-control:focus {
+    border-color: #5c2d91;
+    background: #ffffff;
+    outline: none;
+    box-shadow: 
+        0 0 0 5px rgba(92, 45, 145, 0.15),
+        0 12px 30px rgba(92, 45, 145, 0.25),
+        inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: translateY(-3px) scale(1.01);
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Premium Khalti Button with 3D Effect */
+.khalti-btn {
+    background: linear-gradient(135deg, #5c2d91 0%, #7c3aed 50%, #5c2d91 100%);
+    background-size: 200% 200%;
+    border: none;
+    border-radius: 18px;
+    padding: 22px 50px;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 
+        0 15px 35px rgba(92, 45, 145, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.khalti-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+}
+
+.khalti-btn::after {
+    content: '💜';
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    transition: all 0.3s ease;
+}
+
+.khalti-btn:hover {
+    background: linear-gradient(135deg, #4b2378 0%, #6d28d9 50%, #4b2378 100%);
+    background-size: 200% 200%;
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 
+        0 20px 50px rgba(92, 45, 145, 0.6),
+        0 10px 25px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    animation: gradientShift 2s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.khalti-btn:hover::before {
+    left: 100%;
+}
+
+.khalti-btn:hover::after {
+    transform: translateY(-50%) scale(1.3);
+    animation: heartBeat 0.8s ease infinite;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: translateY(-50%) scale(1.3); }
+    50% { transform: translateY(-50%) scale(1.5); }
+}
+
+.khalti-btn:active {
+    transform: translateY(-2px) scale(0.98);
+    box-shadow: 
+        0 10px 25px rgba(92, 45, 145, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Premium Alert Design */
+.alert-danger {
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.95) 0%, rgba(253, 213, 213, 0.95) 100%);
+    color: #991b1b;
+    border: 2px solid #fca5a5;
+    border-radius: 16px;
+    padding: 18px 24px;
+    font-weight: 600;
+    box-shadow: 
+        0 8px 20px rgba(197, 48, 48, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.alert-danger::before {
+    content: '⚠️ ';
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+/* Premium Login Prompt */
+.text-danger {
+    color: #1a1a2e !important;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 25px 30px;
+    background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.15) 0%, 
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(200, 16, 46, 0.15) 100%);
+    border-radius: 18px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    text-align: center;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.text-danger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 18px;
+    padding: 3px;
+    background: linear-gradient(135deg, #c8102e, #ffd700, #c8102e);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderRotate 3s linear infinite;
+    background-size: 200% 200%;
+}
+
+@keyframes borderRotate {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.text-danger a {
+    color: #c8102e;
+    font-weight: 800;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+    background: linear-gradient(135deg, rgba(200, 16, 46, 0.1), rgba(200, 16, 46, 0.05));
+}
+
+.text-danger a::after {
+    content: ' →';
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.text-danger a:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #c8102e 0%, #a00d24 100%);
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(200, 16, 46, 0.4);
+}
+
+.text-danger a:hover::after {
+    transform: translateX(5px);
+}
+
+/* Premium Secure Footer with Icon Animation */
+.text-muted {
+    color: #1a1a2e !important;
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(67, 233, 123, 0.08));
+    padding: 18px 24px;
+    border-radius: 14px;
+    border: 2px solid rgba(67, 233, 123, 0.3);
+    text-align: center;
+    box-shadow: 
+        0 5px 15px rgba(67, 233, 123, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.text-muted::before {
+    content: '🔒';
+    font-size: 18px;
+    margin-right: 8px;
+    display: inline-block;
+    animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* Enhanced Input Styling */
+input[type="text"] {
+    color: #1a1a2e !important;
+}
+
+input[type="number"] {
+    color: #5c2d91 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px;
+}
+
+input[type="number"]::placeholder {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Premium Loading State */
+.khalti-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.9; }
+}
+
+.khalti-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: 50%;
+    left: 50%;
+    margin-left: -12px;
+    margin-top: -12px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Add Christmas Decorations to Card */
+.card::after {
+    content: '🎄';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 45px;
+    filter: drop-shadow(0 5px 15px rgba(67, 233, 123, 0.4));
+    animation: treeBounce 2s ease-in-out infinite;
+}
+
+@keyframes treeBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0) rotate(-2deg); }
+    50% { transform: translateX(-50%) translateY(-8px) rotate(2deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 850px) {
+    .navbar {
+        padding: 15px 30px;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .navbar::before,
+    .navbar::after {
+        position: relative;
+        left: 0;
+        right: 0;
+    }
+    
+    .nav-left,
+    .nav-right {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 50px 30px 30px 30px;
+        gap: 40px;
+    }
+    
+    .hero-text, 
+    .hero-img {
+        width: 100%;
+    }
+    
+    .hero::before,
+    .hero::after {
+        font-size: 30px;
+    }
+
+    .container {
+        padding: 40px 15px 80px 15px;
+    }
+    
+    .card {
+        padding: 30px 25px !important;
+    }
+    
+    .card h4 {
+        font-size: 28px;
+    }
+    
+    .form-control {
+        padding: 18px 20px;
+        font-size: 16px;
+    }
+    
+    .khalti-btn {
+        padding: 20px 40px;
+        font-size: 17px;
+    }
+
+    .card::after {
+        font-size: 35px;
+        top: -20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 15px 20px;
+    }
+    
+    .hero {
+        padding: 40px 20px 20px 20px;
+    }
+
+    .container {
+        padding: 30px 10px 60px 10px;
+    }
+}
+    </style>
 </head>
 <body>
 
-<div class="container my-5">
-    <h2>🎁 Make a Donation</h2>
-    <form id="donationForm">
-        @csrf
-        <div class="mb-3">
-            <label>Full Name</label>
-            <input type="text" class="form-control" id="full_name" placeholder="Enter your full name" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Type of Donation</label>
-            <select id="type" class="form-select" required>
-                <option value="">Select Type</option>
-                <option value="money">💰 Money</option>
-                <option value="toys">🧸 Toys</option>
-                <option value="clothing">👕 Clothing</option>
-                <option value="surprise_gift">🎁 Surprise Gift</option>
-            </select>
-        </div>
-
-        <div class="mb-3" id="amountDiv" style="display:none;">
-            <label>Amount (NPR)</label>
-            <input type="number" id="amount" class="form-control" min="10" placeholder="Enter amount">
-        </div>
-
-        <button type="button" class="btn btn-primary" id="payBtn">💳 Proceed to Payment</button>
-    </form>
+<!-- NAVBAR -->
+<div class="navbar">
+<div class="nav-left">
+<a href="/">Home</a>
+<a href="/campaigns">All Campaigns</a>
+</div>
+<div class="nav-right">
+    <a href="{{ route('logout') }}" class="text-white text-decoration-none">Logout</a>
+</div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.getElementById('type');
-    const amountDiv = document.getElementById('amountDiv');
-    const amountInput = document.getElementById('amount');
-    const fullNameInput = document.getElementById('full_name');
-    const payBtn = document.getElementById('payBtn');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+<div class="hero">
+<div class="hero-text">
+<!-- DONATION FORM -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card p-4 shadow">
 
-    // Show/hide amount field
-    typeSelect.addEventListener('change', function(){
-        if(typeSelect.value === 'money'){
-            amountDiv.style.display = 'block';
-            amountInput.setAttribute('required', 'required');
-        } else {
-            amountDiv.style.display = 'none';
-            amountInput.removeAttribute('required');
-            amountInput.value = '';
-        }
-    });
+                <h4 class="text-center mb-4">Donate with Khalti 💜</h4>
 
-    const khaltiKey = "{{ $khaltiKey }}";
-    if(!khaltiKey){ alert("❌ Khalti public key missing"); return; }
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
-    const checkout = new KhaltiCheckout({
-        publicKey: khaltiKey,
-        productIdentity: "donation_temp",
-        productName: "Christmas Donation",
-        productUrl: window.location.href,
-        eventHandler: {
-            onError: function(err){
-                Swal.fire('❌ Payment failed', err.message || 'Unknown error', 'error');
-                payBtn.disabled = false;
-                payBtn.innerHTML = "💳 Proceed to Payment";
-            },
-            onClose: function(){ console.log("Khalti widget closed"); }
-        },
-        paymentPreference: ["KHALTI","EBANKING","MOBILE_BANKING","CONNECT_IPS","SCT"]
-    });
+                @if(!session('user_id'))
+                    <p class="text-center text-danger">
+                        Please <a href="{{ route('donationUser.login') }}">login</a> to donate
+                    </p>
+                @else
+                    <form method="POST" action="{{ route('khalti.initiate') }}">
+    @csrf
+    <input type="text" name="full_name" class="form-control" placeholder="Your Name" required>
+    <input type="number" name="amount" class="form-control mt-3" placeholder="Minimum NPR 10" min="10" required>
+    <button type="submit" class="btn khalti-btn text-white w-100 mt-3">Pay with Khalti</button>
+</form>
 
-    payBtn.addEventListener('click', function(){
-        const fullName = fullNameInput.value.trim();
-        const donationType = typeSelect.value;
-        const amount = amountInput.value;
+                @endif
 
-        if(!fullName){ Swal.fire('⚠️ Warning','Enter full name','warning'); fullNameInput.focus(); return; }
-        if(!donationType){ Swal.fire('⚠️ Warning','Select donation type','warning'); typeSelect.focus(); return; }
-        if(donationType === "money" && (!amount || parseInt(amount) < 10)){ Swal.fire('⚠️ Warning','Minimum amount is NPR 10','warning'); amountInput.focus(); return; }
+                <p class="text-center mt-3 text-muted" style="font-size: 13px;">
+                    You will be redirected to Khalti secure payment page
+                </p>
 
-        payBtn.disabled = true;
-        payBtn.innerHTML = "⏳ Processing...";
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="hero-img">
+<img src="{{ asset('uploads/christmas/image.png') }}" alt="Christmas Donation">
+</div>
+</div>
 
-        // Step 1: Create donation in backend
-        fetch("{{ route('store_donationLists') }}", {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-                "Accept":"application/json",
-                "X-CSRF-TOKEN": csrfToken
-            },
-            body: JSON.stringify({
-                full_name: fullName,
-                type: donationType,
-                amount: donationType==="money"?amount:null
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(!data.success) throw new Error(data.message || "Donation creation failed");
-
-            if(donationType === "money"){
-                const donationId = data.donation_id;
-                const amountInPaisa = parseInt(amount) * 100;
-
-                checkout.show({
-                    amount: amountInPaisa,
-                    productIdentity: "donation_" + donationId,
-                    productName: "Christmas Donation",
-                    productUrl: window.location.href,
-                    eventHandler: {
-                        onSuccess: function(payload){
-                            // Step 2: Verify payment
-                            fetch("{{ route('khalti.verify') }}", {
-                                method:"POST",
-                                headers:{
-                                    "Content-Type":"application/json",
-                                    "Accept":"application/json",
-                                    "X-CSRF-TOKEN": csrfToken
-                                },
-                                body: JSON.stringify({
-                                    token: payload.token,
-                                    amount: amountInPaisa,
-                                    donation_id: donationId
-                                })
-                            })
-                            .then(r => r.json())
-                            .then(resp => {
-                                if(resp.success){
-                                    Swal.fire('✅ Success','Payment Successful!','success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('❌ Verification failed', resp.message || 'Unknown error','error');
-                                    payBtn.disabled = false;
-                                    payBtn.innerHTML = "💳 Proceed to Payment";
-                                }
-                            })
-                            .catch(err => {
-                                Swal.fire('❌ Verification error','Contact support','error');
-                                payBtn.disabled = false;
-                                payBtn.innerHTML = "💳 Proceed to Payment";
-                            });
-                        },
-                        onError: function(err){
-                            Swal.fire('❌ Payment failed', err.message || 'Unknown error','error');
-                            payBtn.disabled = false;
-                            payBtn.innerHTML = "💳 Proceed to Payment";
-                        },
-                        onClose: function(){
-                            payBtn.disabled = false;
-                            payBtn.innerHTML = "💳 Proceed to Payment";
-                        }
-                    }
-                });
-            } else {
-                Swal.fire('✅ Success','Donation submitted successfully!','success').then(()=> location.reload());
-            }
-        })
-        .catch(err => {
-            Swal.fire('❌ Error', err.message, 'error');
-            payBtn.disabled = false;
-            payBtn.innerHTML = "💳 Proceed to Payment";
-        });
-    });
-});
-
-</script>
 </body>
 </html>

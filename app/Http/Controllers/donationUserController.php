@@ -80,9 +80,13 @@ class donationUserController extends Controller
 
 
     public function create_donationLists()
-    {
-        return view('donationUser.donation');
+{
+    if (!session('user_id')) {
+        return redirect()->route('donationUser.login')->with('error', 'Please login first!');
     }
+    return view('donationUser.donation');
+}
+
 
     public function store_donationLists(Request $request)
 {
@@ -121,6 +125,8 @@ class donationUserController extends Controller
     {
         return view('donationUser.campaigns');
     }
+
+    
 
      
 }

@@ -48,5 +48,9 @@ Route::middleware('web')->group(function () {
     Route::get('/dashboard', [DonationUserController::class, 'dashboard'])->name('dashboard');
     Route::post('/store-donation', [DonationUserController::class, 'store_donationLists'])->name('store_donationLists');
 
-    Route::post('/khalti-verify', [KhaltiController::class, 'verify'])->name('khalti.verify');
 });
+
+Route::post('/khalti/initiate', [KhaltiController::class, 'initiate'])->name('khalti.initiate');
+Route::get('/khalti/verify', [KhaltiController::class, 'verify'])->name('khalti.verify');
+
+Route::get('/donations/create', [donationUserController::class, 'create_donationLists'])->name('donation.create');
