@@ -19,4 +19,10 @@ class donationList extends Model
         'campaign_id',  // new
         'status'         // new
     ];
+
+    public function campaign()
+{
+    return $this->belongsTo(Campaign::class, 'campaign_id');
+}
+
 }

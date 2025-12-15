@@ -15,8 +15,10 @@ class Campaign extends Model{
         'end_date',
         'is_active',
     ];
-    public function donations()
+   public function donations()
     {
-        return $this->hasMany(\App\Models\donationList::class, 'campaign_id', 'id');
+        return $this->hasMany(donationList::class, 'campaign_id');
     }
+
+    
 }

@@ -25,6 +25,8 @@ Route::get('/logout', [donationUserController::class, 'logout'])->name('logout')
 // Campaigns for users
 Route::get('/campaigns', [CampaignController::class, 'user_campaigns'])->name('campaign.list');
 Route::get('/campaigns/{id}', [CampaignController::class, 'user_campaign_show'])->name('campaign.show');
+Route::get('/campaign/{id}/donations', [DonationUserController::class, 'campaignDonations'])->name('campaign.donations');
+
 
 // Payment routes
 Route::get('/payment/{id}', [donationUserController::class, 'payment'])->name('payment');
@@ -70,3 +72,8 @@ Route::post('/donations/store', [donationUserController::class, 'store_donationL
 
 Route::get('/admin/campaign-donations', [AdminDonationController::class, 'campaignDonations'])
      ->name('campaign.donation');
+
+     Route::get('/donate', [DonationController::class, 'create'])->name('donation.create');
+
+     Route::get('/campaign/{id}/donations', [donationUserController::class, 'showCampaignDonations'])
+     ->name('campaign.donations');

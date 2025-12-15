@@ -20,11 +20,11 @@
 </head>
 <body>
 
+{{-- NAVBAR --}}
 <div class="navbar">
     <a href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
     <a href="{{ route('admin.donations') }}">Donations</a>
-    <a href="{{ route('campaign.donation') }}">Other Campaign Donation</a>
-
+    <a href="{{ route('campaign.donation') }}">Campaign Donations</a>
     <a href="{{ route('admin.logout') }}">Logout</a>
 </div>
 
@@ -33,6 +33,7 @@
     <div class="card p-4 mb-4">
         <h3 class="mb-4 text-center">📦 Donation Management Panel</h3>
 
+        {{-- Alerts --}}
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -40,206 +41,111 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <div class="mb-5">
-            <h4 class="fw-bold">All Standalone Donations</h4>
-            <div class="table-responsive mb-3">
-                <table class="table table-bordered align-middle text-center">
-                    <thead class="table-secondary">
+        {{-- Standalone Donations --}}
+        <h4 class="fw-bold mb-3">All Standalone Donations</h4>
+
+        <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Amount / Quantity</th>
+                        <th>Status</th>
+                        <th>Pickup / Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($mainDonations as $d)
                         <tr>
-                            <th>User</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Pickup / Action</th>
+                            <td>{{ $d->full_name }}</td>
+                            <td class="text-capitalize">{{ $d->type }}</td>
+
+                            {{-- Amount or Quantity --}}
+                            <td>
+                                @if($d->type === 'money')
+                                    💰 {{ number_format($d->amount ?? 0, 2) }} NPR
+                                @else
+                                    {{ $d->quantity ?? 'N/A' }}
+                                @endif
+                            </td>
+
+                            {{-- Status --}}
+                            <td>
+                                @php
+                                    $statusColor = $d->type === 'money'
+                                        ? ($d->payment_status === 'completed' ? 'success' : 'warning')
+                                        : match($d->status) {
+                                            'pending' => 'warning',
+                                            'approved' => 'info',
+                                            'picked_up' => 'primary',
+                                            'completed' => 'success',
+                                            default => 'secondary'
+                                        };
+                                @endphp
+                                <span class="badge bg-{{ $statusColor }}">
+                                    {{ $d->type === 'money'
+                                        ? ucfirst($d->payment_status)
+                                        : ucfirst(str_replace('_',' ',$d->status)) }}
+                                </span>
+                            </td>
+
+                            {{-- Pickup / Action --}}
+                            <td>
+                                @if($d->type !== 'money')
+                                    {{-- Pickup Form --}}
+                                    <form method="POST" action="{{ route('admin.donation.pickup', $d->id) }}">
+                                        @csrf
+                                        <select name="pickup_type" class="form-select form-select-sm mb-1">
+                                            <option value="instant" {{ $d->pickup_type=='instant'?'selected':'' }}>Instant Pickup</option>
+                                            <option value="scheduled" {{ $d->pickup_type=='scheduled'?'selected':'' }}>Scheduled Pickup</option>
+                                        </select>
+                                        <input type="date" name="pickup_date"
+                                               value="{{ $d->pickup_date }}"
+                                               class="form-control form-control-sm mb-1">
+                                        <button class="btn btn-sm btn-success w-100">Save Pickup 🚚</button>
+                                    </form>
+
+                                    {{-- Status Form --}}
+                                    <form method="POST" action="{{ route('admin.donation.status', $d->id) }}" class="mt-2">
+                                        @csrf
+                                        <select name="status" class="form-select form-select-sm mb-1">
+                                            <option value="pending" {{ $d->status=='pending'?'selected':'' }}>Pending</option>
+                                            <option value="approved" {{ $d->status=='approved'?'selected':'' }}>Approved</option>
+                                            <option value="picked_up" {{ $d->status=='picked_up'?'selected':'' }}>Picked Up</option>
+                                            <option value="completed" {{ $d->status=='completed'?'selected':'' }}>Completed</option>
+                                        </select>
+                                        <button class="btn btn-sm btn-primary w-100">Update Status</button>
+                                    </form>
+                                @else
+                                    {{-- Money Donation --}}
+                                    @if($d->payment_status === 'completed')
+                                        <span class="text-success fw-bold">Received 💰</span>
+                                    @else
+                                        <form method="POST" action="{{ route('donation.markReceived', $d->id) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success w-100">Mark as Received 💰</button>
+                                        </form>
+                                    @endif
+                                @endif
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($mainDonations as $d)
-                            <tr>
-                                <td>{{ $d->full_name }}</td>
-                                <td class="text-capitalize">{{ $d->type }}</td>
-                                <td>
-                                    @if($d->type === 'money')
-                                        @if($d->amount)
-                                            💰 {{ number_format($d->amount, 2) }} NPR
-                                        @else
-                                            Pending Payment
-                                        @endif
-                                    @else
-                                        N/A
-                                    @endif
-                                </td>
-                                <td>
-                                    @php
-                                        $statusColor = $d->type === 'money' 
-                                            ? ($d->payment_status === 'completed' ? 'success' : 'warning') 
-                                            : match($d->status) {
-                                                'pending' => 'warning',
-                                                'approved' => 'info',
-                                                'picked_up' => 'primary',
-                                                'completed' => 'success',
-                                                default => 'secondary'
-                                            };
-                                    @endphp
-                                    <span class="badge bg-{{ $statusColor }}">
-                                        {{ $d->type === 'money' 
-                                            ? ucfirst($d->payment_status) 
-                                            : ucfirst(str_replace('_',' ',$d->status)) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($d->type !== 'money')
-                                        <form method="POST" action="{{ route('admin.donation.pickup', $d->id) }}">
-                                            @csrf
-                                            <select name="pickup_type" class="form-select form-select-sm mb-1">
-                                                <option value="instant" {{ $d->pickup_type=='instant'?'selected':'' }}>Instant Pickup</option>
-                                                <option value="scheduled" {{ $d->pickup_type=='scheduled'?'selected':'' }}>Scheduled Pickup</option>
-                                            </select>
-                                            <input type="date" name="pickup_date" value="{{ $d->pickup_date }}" class="form-control form-control-sm mb-1">
-                                            <button class="btn btn-sm btn-success w-100">Save Pickup 🚚</button>
-                                        </form>
-
-                                        <form method="POST" action="{{ route('admin.donation.status', $d->id) }}" class="mt-2">
-                                            @csrf
-                                            <select name="status" class="form-select form-select-sm mb-1">
-                                                <option value="pending" {{ $d->status=='pending'?'selected':'' }}>Pending</option>
-                                                <option value="approved" {{ $d->status=='approved'?'selected':'' }}>Approved</option>
-                                                <option value="picked_up" {{ $d->status=='picked_up'?'selected':'' }}>Picked Up</option>
-                                                <option value="completed" {{ $d->status=='completed'?'selected':'' }}>Completed</option>
-                                            </select>
-                                            <button class="btn btn-sm btn-primary w-100">Update Status</button>
-                                        </form>
-                                    @else
-                                        @if($d->payment_status === 'completed')
-                                            <span class="text-success">Received 💰</span>
-                                        @else
-                                            <form method="POST" action="{{ route('donation.markReceived', $d->id) }}">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-success w-100">
-                                                    Mark as Received 💰
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5">No standalone donations</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="text-end mb-3">
-                @php
-                    $totalMoney = $mainDonations->where('type','money')->sum('amount');
-                @endphp
-                <strong>Total Money Received: 💰 {{ number_format($totalMoney, 2) }} NPR</strong>
-            </div>
-            <hr>
+                    @empty
+                        <tr>
+                            <td colspan="5">No standalone donations found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
-        @foreach($campaigns as $campaign)
-            <div class="mb-4">
-                <h4 class="fw-bold">{{ $campaign->title }} ({{ \Carbon\Carbon::parse($campaign->start_date)->format('d M, Y') }} — {{ \Carbon\Carbon::parse($campaign->end_date)->format('d M, Y') }})</h4>
-
-                <div class="table-responsive mb-3">
-                    <table class="table table-bordered align-middle text-center">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>User</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Pickup / Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($campaign->donations as $d)
-                                <tr>
-                                    <td>{{ $d->full_name }}</td>
-                                    <td class="text-capitalize">{{ $d->type }}</td>
-                                    <td>
-                                        @if($d->type === 'money')
-                                            💰 {{ number_format($d->amount, 2) }} NPR
-                                        @else
-                                            N/A
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @php
-                                            $statusColor = $d->type === 'money' 
-                                                ? ($d->payment_status === 'completed' ? 'success' : 'warning') 
-                                                : match($d->status) {
-                                                    'pending' => 'warning',
-                                                    'approved' => 'info',
-                                                    'picked_up' => 'primary',
-                                                    'completed' => 'success',
-                                                    default => 'secondary'
-                                                };
-                                        @endphp
-                                        <span class="badge bg-{{ $statusColor }}">
-                                            {{ $d->type === 'money' 
-                                                ? ucfirst($d->payment_status) 
-                                                : ucfirst(str_replace('_',' ',$d->status)) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($d->type !== 'money')
-                                            <form method="POST" action="{{ route('admin.donation.pickup', $d->id) }}">
-                                                @csrf
-                                                <select name="pickup_type" class="form-select form-select-sm mb-1">
-                                                    <option value="instant" {{ $d->pickup_type=='instant'?'selected':'' }}>Instant Pickup</option>
-                                                    <option value="scheduled" {{ $d->pickup_type=='scheduled'?'selected':'' }}>Scheduled Pickup</option>
-                                                </select>
-                                                <input type="date" name="pickup_date" value="{{ $d->pickup_date }}" class="form-control form-control-sm mb-1">
-                                                <button class="btn btn-sm btn-success w-100">Save Pickup 🚚</button>
-                                            </form>
-
-                                            <form method="POST" action="{{ route('admin.donation.status', $d->id) }}" class="mt-2">
-                                                @csrf
-                                                <select name="status" class="form-select form-select-sm mb-1">
-                                                    <option value="pending" {{ $d->status=='pending'?'selected':'' }}>Pending</option>
-                                                    <option value="approved" {{ $d->status=='approved'?'selected':'' }}>Approved</option>
-                                                    <option value="picked_up" {{ $d->status=='picked_up'?'selected':'' }}>Picked Up</option>
-                                                    <option value="completed" {{ $d->status=='completed'?'selected':'' }}>Completed</option>
-                                                </select>
-                                                <button class="btn btn-sm btn-primary w-100">Update Status</button>
-                                            </form>
-                                        @else
-                                            @if($d->payment_status === 'completed')
-                                                <span class="text-success">Received 💰</span>
-                                            @else
-                                                <form method="POST" action="{{ route('donation.markReceived', $d->id) }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success w-100">
-                                                        Mark as Received 💰
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5">No donations for this campaign</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="text-end mb-3">
-                    @php
-                        $totalMoney = $campaign->donations->where('type','money')->sum('amount');
-                    @endphp
-                    <strong>Total Money Received: 💰 {{ number_format($totalMoney, 2) }} NPR</strong>
-                </div>
-                <hr>
-            </div>
-        @endforeach
+        {{-- Total Money --}}
+        <div class="text-end">
+            @php
+                $totalMoney = $mainDonations->where('type','money')->sum('amount');
+            @endphp
+            <strong>Total Money Received: 💰 {{ number_format($totalMoney, 2) }} NPR</strong>
+        </div>
 
     </div>
 </div>

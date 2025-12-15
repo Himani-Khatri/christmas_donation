@@ -14,15 +14,17 @@ class KhaltiController extends Controller
         $request->validate([
             'full_name' => 'required',
             'amount' => 'required|numeric|min:10',
+            'campaign_id' => 'nullable|exists:campaigns,id', // validate campaign
         ]);
 
-        // Store donation as pending
+        // Store donation as pending and assign campaign_id
         $donation = donationList::create([
             'user_id' => session('user_id'),
             'full_name' => $request->full_name,
             'type' => 'money',
             'amount' => $request->amount,
             'payment_status' => 'pending',
+            'campaign_id' => $request->campaign_id, // assign campaign
         ]);
 
         // Khalti API payload
@@ -65,10 +67,8 @@ class KhaltiController extends Controller
 
         $data = $response->json();
 
-        // Check completed status
         if (($data['status'] ?? '') === 'Completed') {
 
-            // Get donation id from nested order
             $donationId = $data['order']['purchase_order_id'] ?? null;
 
             if ($donationId) {

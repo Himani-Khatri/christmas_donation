@@ -31,9 +31,12 @@
         {{ $campaign->description }}
     </p>
 
-    <a href="{{ route('donation.create') }}" class="btn btn-danger btn-lg mt-3">
-        Donate Now 🎁
-    </a>
+    <a href="{{ route('campaign.donations', ['id' => $campaign->id]) }}" 
+   class="btn btn-danger btn-lg mt-3">
+    Donate Now 🎁
+</a>
+
+
 
 </div>
 

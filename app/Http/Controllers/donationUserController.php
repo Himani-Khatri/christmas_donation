@@ -106,24 +106,29 @@ public function markReceived($id)
 
 
 
-    public function store_donationLists(Request $request)
-{
-    $request->validate([
-        'full_name' => 'required',
-        'type' => 'required',
-        'amount' => $request->type === 'money' ? 'required|numeric|min:10' : 'nullable',
-    ]);
+public function store_donationLists(Request $request) {
+        $request->validate([
+            'full_name'   => 'required',
+            'type'        => 'required',
+            'amount'      => $request->type === 'money' ? 'required|numeric|min:10' : 'nullable',
+            'campaign_id' => 'nullable|exists:campaigns,id',
+        ]);
 
-    $donation = new donationList();
-    $donation->user_id = session('user_id');
-    $donation->full_name = $request->full_name;
-    $donation->type = $request->type;
-    $donation->amount = $request->type === 'money' ? $request->amount : null;
-    $donation->payment_status = $request->type === 'money' ? 'pending' : 'not_required';
-    $donation->save();
+        $donation = new donationList();
+        $donation->user_id = session('user_id');
+        $donation->full_name = $request->full_name;
+        $donation->type = $request->type;
+        $donation->amount = $request->type === 'money' ? $request->amount : null;
+        $donation->quantity = $request->type !== 'money' ? $request->quantity : null;
+        $donation->payment_status = $request->type === 'money' ? 'pending' : 'not_required';
+        $donation->campaign_id = $request->campaign_id; // store campaign_id
+        $donation->status = $request->type !== 'money' ? 'pending' : null;
+        $donation->save();
 
-    return response()->json(['success' => true, 'donation_id' => $donation->id, 'message' => 'Donation created!']);
-}
+        return redirect()->route('campaign.donations', ['id' => $request->campaign_id])
+                         ->with('success', 'Donation submitted successfully!');
+    }
+
 
 
 
@@ -143,6 +148,29 @@ public function markReceived($id)
     {
         return view('donationUser.campaigns');
     }
+
+   
+
+public function showCampaign($id)
+{
+    $campaign = Campaign::findOrFail($id);
+    return view('donationUser.campaign_details', compact('campaign'));
+}
+
+public function campaignDonations($id)
+{
+    $campaign = Campaign::with('donations')->findOrFail($id);
+    return view('donationUser.campaign_donation', compact('campaign'));
+}
+
+public function showCampaignDonations($id)
+{
+    // Fetch the campaign with all its donations
+    $campaign = \App\Models\Campaign::with('donations')->findOrFail($id);
+
+    // Return the Blade with the campaign data
+    return view('donationUser.campaign_donation', compact('campaign'));
+}
 
     
 
