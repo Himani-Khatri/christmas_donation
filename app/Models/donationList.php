@@ -6,12 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class donationList extends Model
 {
-    protected $table='donation_lists';
-    protected $fillable=[
+    protected $table = 'donation_lists';
+
+    protected $fillable = [
         'user_id',
         'full_name',
         'type',
         'amount',
-        'payment_status'
+        'payment_status',
+        'pickup_type',   // new
+        'pickup_date', 
+        'campaign_id',  // new
+        'status'         // new
     ];
 }

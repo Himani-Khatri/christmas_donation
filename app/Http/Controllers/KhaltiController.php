@@ -10,51 +10,46 @@ class KhaltiController extends Controller
 {
     // Initiate payment
     public function initiate(Request $request)
-{
-    if (!session('user_id')) {
-        return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+    {
+        $request->validate([
+            'full_name' => 'required',
+            'amount' => 'required|numeric|min:10',
+        ]);
+
+        // Store donation as pending
+        $donation = donationList::create([
+            'user_id' => session('user_id'),
+            'full_name' => $request->full_name,
+            'type' => 'money',
+            'amount' => $request->amount,
+            'payment_status' => 'pending',
+        ]);
+
+        // Khalti API payload
+        $payload = [
+            "return_url" => route('khalti.verify'),
+            "website_url" => url('/'),
+            "amount" => $request->amount * 100, // paisa
+            "purchase_order_id" => $donation->id,
+            "purchase_order_name" => "Donation",
+            "customer_info" => [
+                "name" => $request->full_name,
+                "email" => "test@khalti.com",
+                "phone" => "9800000001"
+            ]
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Key ' . env('KHALTI_SECRET_KEY'),
+            'Content-Type' => 'application/json',
+        ])->post('https://dev.khalti.com/api/v2/epayment/initiate/', $payload);
+
+        if ($response->successful()) {
+            return redirect($response->json()['payment_url']);
+        }
+
+        return back()->with('error', 'Khalti initiation failed');
     }
-
-    $request->validate([
-        'full_name' => 'required',
-        'amount' => 'required|numeric|min:10',
-    ]);
-
-    // Store donation as pending
-    $donation = donationList::create([
-        'user_id' => session('user_id'),
-        'full_name' => $request->full_name,
-        'type' => 'money',
-        'amount' => $request->amount,
-        'payment_status' => 'pending',
-    ]);
-
-    // Khalti payload
-    $payload = [
-        "return_url" => route('khalti.verify'),
-        "website_url" => url('/'),
-        "amount" => $request->amount * 100,
-        "purchase_order_id" => $donation->id,
-        "purchase_order_name" => "Donation",
-        "customer_info" => [
-            "name" => $request->full_name,
-            "email" => "test@khalti.com",
-            "phone" => "9800000001"
-        ]
-    ];
-
-    $response = Http::withHeaders([
-        'Authorization' => 'Key ' . env('KHALTI_SECRET_KEY'),
-        'Content-Type' => 'application/json',
-    ])->post('https://dev.khalti.com/api/v2/epayment/initiate/', $payload);
-
-    if ($response->successful()) {
-        return redirect($response->json()['payment_url']);
-    }
-
-    return back()->with('error', 'Khalti initiation failed');
-}
-
 
     // Verify payment
     public function verify(Request $request)

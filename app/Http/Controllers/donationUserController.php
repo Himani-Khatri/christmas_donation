@@ -19,6 +19,18 @@ class donationUserController extends Controller
         return view('donationUser.signup');
     }
 
+
+public function markReceived($id)
+{
+    $donation = donationList::findOrFail($id);
+    if($donation->type === 'money'){
+        $donation->payment_status = 'completed';
+        $donation->save();
+    }
+    return back()->with('success', 'Money marked as received 💰');
+}
+
+
     public function store(Request $request)
     {
         $request->validate([
@@ -66,8 +78,8 @@ class donationUserController extends Controller
         return redirect()->route('donationUser.login')->with('error', 'Please login first!');
     }
 
-    $donations = DonationList::where('user_id', session('user_id'))->get();
-    $allMoneyDonations = DonationList::where('type', 'money')->get();
+    $donations = donationList::where('user_id', session('user_id'))->get();
+    $allMoneyDonations = donationList::where('type', 'money')->get();
 
     return view('donationUser.dashboard', [
         'donations' => $donations,
@@ -84,8 +96,14 @@ class donationUserController extends Controller
     if (!session('user_id')) {
         return redirect()->route('donationUser.login')->with('error', 'Please login first!');
     }
-    return view('donationUser.donation');
+
+    // Fetch donations for the logged-in user
+    $donations = donationList::where('user_id', session('user_id'))->get();
+
+    return view('donationUser.donation', compact('donations'));
 }
+
+
 
 
     public function store_donationLists(Request $request)
