@@ -8,11 +8,6 @@ use App\Models\donationList;
 
 class donationUserController extends Controller
 {
-    public function donationUser_index()
-    {
-        $donationUsers = donationUsers::all();
-        return view('donationUser.index', compact('donationUsers'));
-    }
 
     public function donationUser_signup()
     {
