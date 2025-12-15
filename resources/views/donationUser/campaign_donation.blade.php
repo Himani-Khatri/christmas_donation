@@ -11,14 +11,16 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar bg-dark text-white p-3">
+<div class="navbar d-flex justify-content-between align-items-center px-4">
     <div class="nav-left">
-        <a href="{{ route('landing') }}" class="text-white text-decoration-none me-3">Home</a>
-        <a href="{{ route('campaign.list') }}" class="text-white text-decoration-none">All Campaigns</a>
+        <a href="/dashboard" class="me-3">Home</a>
+        <a href="/campaigns" class="me-3">All Campaigns</a>
+        <a href="{{ route('tracker') }}" class="me-3">Tracker</a>
     </div>
-    <div class="nav-right">
-        <a href="{{ route('logout') }}" class="text-white text-decoration-none">Logout</a>
+    <div class="nav-right d-flex align-items-center position-relative">
+        
+
+        <a href="{{ route('logout') }}" class="text-white text-decoration-none btn btn-danger">Logout</a>
     </div>
 </div>
 
@@ -27,7 +29,6 @@
         <h2 class="text-center mb-4">Donate to "{{ $campaign->title }}"</h2>
         <div class="row justify-content-center">
 
-            <!-- DONATE MONEY -->
             <div class="col-md-6 mb-4">
                 <div class="card p-4 shadow">
                     <h4 class="text-center mb-4">Donate Money 💜</h4>
@@ -52,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- DONATE ITEMS -->
             <div class="col-md-6 mb-4">
                 <div class="card p-4 shadow">
                     <h4 class="text-center mb-4">Donate Items 🎁</h4>
@@ -89,50 +89,7 @@
 
         </div>
 
-        <!-- Campaign Donations Table -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <h4 class="mb-3">All Donations for "{{ $campaign->title }}"</h4>
-                <div class="table-responsive">
-                    <table class="table table-bordered text-center">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>User</th>
-                                <th>Type</th>
-                                <th>Amount / Quantity</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($campaign->donations as $d)
-                                <tr>
-                                    <td>{{ $d->full_name }}</td>
-                                    <td>{{ ucfirst($d->type) }}</td>
-                                    <td>
-                                        @if($d->type === 'money')
-                                            💰 {{ number_format($d->amount, 2) }} NPR
-                                        @else
-                                            {{ $d->quantity ?? 'N/A' }}
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($d->type === 'money')
-                                            {{ ucfirst($d->payment_status) }}
-                                        @else
-                                            {{ ucfirst(str_replace('_',' ',$d->status)) }}
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4">No donations yet</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+       
 
     </div>
 </div>

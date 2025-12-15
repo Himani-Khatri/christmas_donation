@@ -7,7 +7,7 @@
 <body class="bg-dark d-flex justify-content-center align-items-center" style="height:100vh;">
 
 <div class="card p-4 shadow" style="width:380px;">
-    <h3 class="text-center mb-3">👑 Admin Login</h3>
+    <h3 class="text-center mb-3">Admin Login</h3>
 
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>

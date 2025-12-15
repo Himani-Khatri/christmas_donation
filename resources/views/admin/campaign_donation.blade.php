@@ -5,7 +5,6 @@
     <title>Admin | Campaign Donations</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{-- Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -55,7 +54,6 @@
     <h3 class="text-center mb-4">🎯 Campaign Donations</h3>
 
     <div class="row">
-        {{-- Left: Campaign List --}}
         <div class="col-md-3 campaign-list">
             @foreach($campaigns as $campaign)
                 <div class="card campaign-card" id="card-{{ $campaign->id }}" onclick="showTable({{ $campaign->id }})">
@@ -73,7 +71,6 @@
             @endforeach
         </div>
 
-        {{-- Right: Donation Table --}}
         <div class="col-md-9">
             @foreach($campaigns as $campaign)
                 <div id="table-{{ $campaign->id }}" class="donation-table">
@@ -127,7 +124,6 @@
                                         </td>
                                         <td>
                                             @if($d->type !== 'money')
-                                                {{-- Pickup --}}
                                                 <form method="POST" action="{{ route('admin.donation.pickup', $d->id) }}">
                                                     @csrf
                                                     <select name="pickup_type" class="form-select form-select-sm mb-1">
@@ -138,7 +134,6 @@
                                                     <button class="btn btn-sm btn-success w-100">Save Pickup 🚚</button>
                                                 </form>
 
-                                                {{-- Status --}}
                                                 <form method="POST" action="{{ route('admin.donation.status', $d->id) }}" class="mt-2">
                                                     @csrf
                                                     <select name="status" class="form-select form-select-sm mb-1">
@@ -150,7 +145,6 @@
                                                     <button class="btn btn-sm btn-primary w-100">Update Status</button>
                                                 </form>
                                             @else
-                                                {{-- Money Donation --}}
                                                 @if($d->payment_status==='completed')
                                                     <span class="text-success fw-bold">Received 💰</span>
                                                 @else

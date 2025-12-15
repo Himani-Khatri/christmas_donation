@@ -7,28 +7,17 @@ use App\Http\Controllers\KhaltiController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDonationController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
-// Landing page
 Route::get('/', [donationUserController::class, 'landing'])->name('landing');
 
-// User signup & login
 Route::get('/signup', [donationUserController::class, 'donationUser_signup'])->name('donationUser.signup');
 Route::post('/store', [donationUserController::class, 'store'])->name('store');
 Route::match(['get','post'], '/login', [donationUserController::class, 'donationUser_login'])->name('donationUser.login');
 Route::get('/logout', [donationUserController::class, 'logout'])->name('logout');
 
-// Campaigns for users
 Route::get('/campaigns', [CampaignController::class, 'user_campaigns'])->name('campaign.list');
 Route::get('/campaigns/{id}', [CampaignController::class, 'user_campaign_show'])->name('campaign.show');
 Route::get('/campaign/{id}/donations', [DonationUserController::class, 'campaignDonations'])->name('campaign.donations');
 
-
-// Payment routes
 Route::get('/payment/{id}', [donationUserController::class, 'payment'])->name('payment');
 Route::post('/payment/success/{id}', [donationUserController::class, 'paymentSuccess'])->name('payment.success');
 
@@ -70,10 +59,9 @@ Route::get('/donations/create', [donationUserController::class, 'create_donation
 
 Route::post('/donations/store', [donationUserController::class, 'store_donationLists'])->name('store_donationLists');
 
-Route::get('/admin/campaign-donations', [AdminDonationController::class, 'campaignDonations'])
-     ->name('campaign.donation');
+Route::get('/admin/campaign-donations', [AdminDonationController::class, 'campaignDonations'])->name('campaign.donation');
 
-     Route::get('/donate', [DonationController::class, 'create'])->name('donation.create');
+Route::get('/donate', [DonationController::class, 'create'])->name('donation.create');
 
-     Route::get('/campaign/{id}/donations', [donationUserController::class, 'showCampaignDonations'])
-     ->name('campaign.donations');
+Route::get('/campaign/{id}/donations', [donationUserController::class, 'showCampaignDonations'])->name('campaign.donations');
+Route::get('/tracker', [donationUserController::class, 'tracker'])->name('tracker');

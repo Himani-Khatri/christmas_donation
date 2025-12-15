@@ -7,19 +7,16 @@ use App\Models\Campaign;
 
 class CampaignController extends Controller
 {
-    public function admin_index()
-    {
+    public function admin_index(){
         $campaigns = Campaign::orderBy('id', 'DESC')->get();
         return view('admin.campaign.index', compact('campaigns'));
     }
 
-    public function admin_create()
-    {
+    public function admin_create(){
         return view('admin.campaign.create');
     }
 
-    public function admin_store(Request $request)
-    {
+    public function admin_store(Request $request){
         $request->validate([
             'title'       => 'required|max:255',
             'description' => 'nullable',
@@ -48,14 +45,12 @@ class CampaignController extends Controller
                          ->with('success', 'Campaign created successfully!');
     }
 
-    public function user_campaigns()
-    {
+    public function user_campaigns(){
         $campaigns = Campaign::where('is_active', true)->get();
         return view('donationUser.campaigns', compact('campaigns'));
     }
 
-    public function user_campaign_show($id)
-    {
+    public function user_campaign_show($id){
         $campaign = Campaign::findOrFail($id);
         return view('donationUser.campaign_details', compact('campaign'));
     }

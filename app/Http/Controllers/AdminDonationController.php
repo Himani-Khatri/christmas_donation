@@ -5,36 +5,38 @@ namespace App\Http\Controllers;
 use App\Models\donationList;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class AdminDonationController extends Controller
 {
-    public function index()
-    {
-        // Fetch standalone donations (not linked to any campaign)
+    public function index(){
         $mainDonations = donationList::whereNull('campaign_id')->latest()->get();
 
-        // Fetch all campaigns with their donations
         $campaigns = Campaign::with(['donations' => function($q) {
-            $q->latest(); // latest donations first
+            $q->latest(); 
         }])->get();
 
         return view('admin.donation', compact('mainDonations','campaigns'));
     }
 
-    public function setPickup(Request $request, $id)
-    {
+    public function setPickup(Request $request, $id){
         $donation = donationList::findOrFail($id);
 
-        $donation->pickup_type = $request->pickup_type; // instant | scheduled
+        $donation->pickup_type = $request->pickup_type;
         $donation->pickup_date = $request->pickup_date;
-        $donation->status = 'approved';
+        $donation->status = 'scheduled';
         $donation->save();
 
-        return back()->with('success', 'Pickup scheduled 🚚');
+        Notification::create([
+            'user_id' => $donation->user_id,
+            'title' => 'Pickup Scheduled',
+            'message' => 'Your donated items will be picked up on ' . $request->pickup_date,
+        ]);
+
+        return back()->with('success', 'Pickup scheduled and notification sent!');
     }
 
-    public function updateStatus(Request $request, $id)
-    {
+    public function updateStatus(Request $request, $id){
         $donation = donationList::findOrFail($id);
         $donation->status = $request->status;
         $donation->save();
@@ -42,10 +44,9 @@ class AdminDonationController extends Controller
         return back()->with('success', 'Status updated ✅');
     }
 
-    public function campaignDonations()
-{
-    $campaigns = Campaign::with('donations')->get();
-    return view('admin.campaign_donation', compact('campaigns'));
-}
+    public function campaignDonations(){
+        $campaigns = Campaign::with('donations')->get();
+        return view('admin.campaign_donation', compact('campaigns'));
+    }
 
 }

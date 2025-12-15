@@ -263,7 +263,6 @@
                 0 0 60px rgba(255, 215, 0, 0.5);
         }
         
-/* Payment Gateway Section - Premium Christmas Theme */
 .container {
     padding: 60px 20px 100px 20px;
     background: transparent;
@@ -299,7 +298,6 @@
     z-index: 10;
 }
 
-/* Card Styling - Premium Design */
 .card {
     border: none;
     border-radius: 30px;
@@ -363,7 +361,6 @@
     animation: borderPulse 2s ease-in-out infinite;
 }
 
-/* Premium Heading with Gradient */
 .card h4 {
     background: linear-gradient(135deg, #5c2d91 0%, #c8102e 50%, #ffd700 100%);
     -webkit-background-clip: text;
@@ -396,7 +393,6 @@
     border-radius: 2px;
 }
 
-/* Premium Form Controls */
 .form-control {
     border: 3px solid transparent;
     border-radius: 18px;
@@ -437,7 +433,6 @@
     font-weight: 500;
 }
 
-/* Premium Khalti Button with 3D Effect */
 .khalti-btn {
     background: linear-gradient(135deg, #5c2d91 0%, #7c3aed 50%, #5c2d91 100%);
     background-size: 200% 200%;
@@ -516,7 +511,6 @@
         0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Premium Alert Design */
 .alert-danger {
     background: linear-gradient(135deg, rgba(254, 226, 226, 0.95) 0%, rgba(253, 213, 213, 0.95) 100%);
     color: #991b1b;
@@ -542,7 +536,6 @@
     margin-right: 8px;
 }
 
-/* Premium Login Prompt */
 .text-danger {
     color: #1a1a2e !important;
     font-size: 17px;
@@ -613,7 +606,6 @@
     transform: translateX(5px);
 }
 
-/* Premium Secure Footer with Icon Animation */
 .text-muted {
     color: #1a1a2e !important;
     font-size: 14px;
@@ -641,7 +633,6 @@
     50% { transform: scale(1.2); }
 }
 
-/* Enhanced Input Styling */
 input[type="text"] {
     color: #1a1a2e !important;
 }
@@ -658,7 +649,6 @@ input[type="number"]::placeholder {
     font-weight: 500 !important;
 }
 
-/* Premium Loading State */
 .khalti-btn.loading {
     pointer-events: none;
     opacity: 0.7;
@@ -689,7 +679,6 @@ input[type="number"]::placeholder {
     to { transform: rotate(360deg); }
 }
 
-/* Add Christmas Decorations to Card */
 .card::after {
     content: '🎄';
     position: absolute;
@@ -706,7 +695,6 @@ input[type="number"]::placeholder {
     50% { transform: translateX(-50%) translateY(-8px) rotate(2deg); }
 }
 
-/* Responsive Design */
 @media (max-width: 850px) {
     .navbar {
         padding: 15px 30px;

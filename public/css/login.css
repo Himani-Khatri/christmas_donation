@@ -381,7 +381,6 @@ button[type="submit"]:active {
     }
 }
 
-/* Snow particles */
 .login-form:hover::before {
     animation: bounce 1s infinite ease-in-out, sparkle 0.5s ease-in-out;
 }
@@ -390,7 +389,6 @@ button[type="submit"]:active {
     0%, 100% { filter: drop-shadow(0 5px 15px rgba(67, 233, 123, 0.4)); }
     50% { filter: drop-shadow(0 5px 30px rgba(255, 215, 0, 0.8)); }
 }
-/* NAVBAR */
 .navbar {
     width: 100%;
     background: linear-gradient(135deg, #c8102e 0%, #a00d24 100%);

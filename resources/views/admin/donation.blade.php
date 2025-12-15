@@ -5,7 +5,6 @@
     <title>Admin | Donations</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{-- Bootstrap --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -20,10 +19,9 @@
 </head>
 <body>
 
-{{-- NAVBAR --}}
 <div class="navbar">
     <a href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
-    <a href="{{ route('admin.donations') }}">Donations</a>
+    <a href="{{ route('admin.donations') }}">Standalone Donations</a>
     <a href="{{ route('campaign.donation') }}">Campaign Donations</a>
     <a href="{{ route('admin.logout') }}">Logout</a>
 </div>
@@ -33,7 +31,6 @@
     <div class="card p-4 mb-4">
         <h3 class="mb-4 text-center">📦 Donation Management Panel</h3>
 
-        {{-- Alerts --}}
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -41,7 +38,6 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        {{-- Standalone Donations --}}
         <h4 class="fw-bold mb-3">All Standalone Donations</h4>
 
         <div class="table-responsive mb-3">
@@ -61,7 +57,6 @@
                             <td>{{ $d->full_name }}</td>
                             <td class="text-capitalize">{{ $d->type }}</td>
 
-                            {{-- Amount or Quantity --}}
                             <td>
                                 @if($d->type === 'money')
                                     💰 {{ number_format($d->amount ?? 0, 2) }} NPR
@@ -70,7 +65,6 @@
                                 @endif
                             </td>
 
-                            {{-- Status --}}
                             <td>
                                 @php
                                     $statusColor = $d->type === 'money'
@@ -90,10 +84,8 @@
                                 </span>
                             </td>
 
-                            {{-- Pickup / Action --}}
                             <td>
                                 @if($d->type !== 'money')
-                                    {{-- Pickup Form --}}
                                     <form method="POST" action="{{ route('admin.donation.pickup', $d->id) }}">
                                         @csrf
                                         <select name="pickup_type" class="form-select form-select-sm mb-1">
@@ -106,7 +98,6 @@
                                         <button class="btn btn-sm btn-success w-100">Save Pickup 🚚</button>
                                     </form>
 
-                                    {{-- Status Form --}}
                                     <form method="POST" action="{{ route('admin.donation.status', $d->id) }}" class="mt-2">
                                         @csrf
                                         <select name="status" class="form-select form-select-sm mb-1">
@@ -118,7 +109,6 @@
                                         <button class="btn btn-sm btn-primary w-100">Update Status</button>
                                     </form>
                                 @else
-                                    {{-- Money Donation --}}
                                     @if($d->payment_status === 'completed')
                                         <span class="text-success fw-bold">Received 💰</span>
                                     @else
@@ -139,7 +129,6 @@
             </table>
         </div>
 
-        {{-- Total Money --}}
         <div class="text-end">
             @php
                 $totalMoney = $mainDonations->where('type','money')->sum('amount');

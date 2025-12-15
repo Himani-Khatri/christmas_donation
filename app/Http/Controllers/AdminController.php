@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Controllers/AdminController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,13 +8,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function login()
-    {
+    public function login(){
         return view('admin.login');
     }
 
-    public function doLogin(Request $request)
-    {
+    public function doLogin(Request $request){
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
@@ -35,8 +32,7 @@ class AdminController extends Controller
         return back()->with('error', 'Invalid admin credentials ❌');
     }
 
-    public function dashboard()
-    {
+    public function dashboard(){
         if (!session('admin_id')) {
             return redirect()->route('admin.login');
         }
@@ -44,8 +40,7 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
-    public function logout()
-    {
+    public function logout(){
         session()->forget(['admin_id', 'admin_email']);
         return redirect()->route('admin.login');
     }

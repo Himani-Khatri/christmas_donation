@@ -8,30 +8,26 @@ use App\Models\donationList;
 
 class KhaltiController extends Controller
 {
-    // Initiate payment
-    public function initiate(Request $request)
-    {
+    public function initiate(Request $request){
         $request->validate([
             'full_name' => 'required',
             'amount' => 'required|numeric|min:10',
-            'campaign_id' => 'nullable|exists:campaigns,id', // validate campaign
+            'campaign_id' => 'nullable|exists:campaigns,id', 
         ]);
 
-        // Store donation as pending and assign campaign_id
         $donation = donationList::create([
             'user_id' => session('user_id'),
             'full_name' => $request->full_name,
             'type' => 'money',
             'amount' => $request->amount,
             'payment_status' => 'pending',
-            'campaign_id' => $request->campaign_id, // assign campaign
+            'campaign_id' => $request->campaign_id, 
         ]);
 
-        // Khalti API payload
         $payload = [
             "return_url" => route('khalti.verify'),
             "website_url" => url('/'),
-            "amount" => $request->amount * 100, // paisa
+            "amount" => $request->amount * 100,
             "purchase_order_id" => $donation->id,
             "purchase_order_name" => "Donation",
             "customer_info" => [
@@ -53,9 +49,7 @@ class KhaltiController extends Controller
         return back()->with('error', 'Khalti initiation failed');
     }
 
-    // Verify payment
-    public function verify(Request $request)
-    {
+    public function verify(Request $request){
         $pidx = $request->pidx;
 
         $response = Http::withHeaders([

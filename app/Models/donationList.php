@@ -14,10 +14,10 @@ class donationList extends Model
         'type',
         'amount',
         'payment_status',
-        'pickup_type',   // new
+        'pickup_type',  
         'pickup_date', 
-        'campaign_id',  // new
-        'status'         // new
+        'campaign_id', 
+        'status'        
     ];
 
     public function campaign()

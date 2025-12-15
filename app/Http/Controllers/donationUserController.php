@@ -20,19 +20,17 @@ class donationUserController extends Controller
     }
 
 
-public function markReceived($id)
-{
-    $donation = donationList::findOrFail($id);
-    if($donation->type === 'money'){
-        $donation->payment_status = 'completed';
-        $donation->save();
+    public function markReceived($id){
+        $donation = donationList::findOrFail($id);
+        if($donation->type === 'money'){
+            $donation->payment_status = 'completed';
+            $donation->save();
+        }
+        return back()->with('success', 'Money marked as received 💰');
     }
-    return back()->with('success', 'Money marked as received 💰');
-}
 
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $request->validate([
             'fname' => 'required',
             'email' => 'required|email|unique:donation_users,email',
@@ -52,8 +50,7 @@ public function markReceived($id)
         return redirect()->route('donationUser.login')->with('success', 'Account created successfully!');
     }
 
-    public function donationUser_login(Request $request)
-    {
+    public function donationUser_login(Request $request){
         if ($request->isMethod('post')) {
             $user = donationUsers::where('email', $request->email)->first();
 
@@ -72,41 +69,58 @@ public function markReceived($id)
         return view('donationUser.login');
     }
 
-    public function dashboard()
-{
-    if (!session('user_id')) {
-        return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+    public function dashboard(){
+        if (!session('user_id')) {
+            return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+        }
+
+        $userId = session('user_id');
+
+        $donations = donationList::where('user_id', $userId)
+                                ->orderBy('created_at', 'desc')
+                                ->get();
+
+        $mainDonations = donationList::where('user_id', $userId)
+                                    ->whereNull('campaign_id')
+                                    ->orderBy('created_at', 'desc')
+                                    ->get();
+
+        $notifications = \App\Models\Notification::where('user_id', $userId)
+                                                ->orderBy('created_at', 'desc')
+                                                ->get();
+
+        $unreadCount = $notifications->where('read', false)->count();
+
+        $totalMoney = donationList::where('user_id', $userId)
+                                ->where('type', 'money')
+                                ->sum('amount');
+
+        return view('donationUser.dashboard', [
+            'donations' => $donations,
+            'mainDonations' => $mainDonations,
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
+            'totalMoney' => $totalMoney,
+        ]);
     }
 
-    $donations = donationList::where('user_id', session('user_id'))->get();
-    $allMoneyDonations = donationList::where('type', 'money')->get();
+    public function create_donationLists(){
+        if (!session('user_id')) {
+            return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+        }
 
-    return view('donationUser.dashboard', [
-        'donations' => $donations,
-        'allMoneyDonations' => $allMoneyDonations,
-        'khaltiKey' => env('KHALTI_PUBLIC_KEY') // pass public key to Blade
-    ]);
-}
+        $donations = donationList::where('user_id', session('user_id'))->get();
 
+        $mainDonations = donationList::whereNull('campaign_id')->get();
 
-
-
-    public function create_donationLists()
-{
-    if (!session('user_id')) {
-        return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+        return view('donationUser.donation', compact('donations', 'mainDonations'));
     }
 
-    // Fetch donations for the logged-in user
-    $donations = donationList::where('user_id', session('user_id'))->get();
-
-    return view('donationUser.donation', compact('donations'));
-}
 
 
 
 
-public function store_donationLists(Request $request) {
+    public function store_donationLists(Request $request) {
         $request->validate([
             'full_name'   => 'required',
             'type'        => 'required',
@@ -125,54 +139,64 @@ public function store_donationLists(Request $request) {
         $donation->status = $request->type !== 'money' ? 'pending' : null;
         $donation->save();
 
-        return redirect()->route('campaign.donations', ['id' => $request->campaign_id])
-                         ->with('success', 'Donation submitted successfully!');
+        if ($request->campaign_id) {
+            return redirect()->route('campaign.donations', ['id' => $request->campaign_id])
+                            ->with('success', 'Donation submitted successfully!');
+        } else {
+            return redirect()->route('donation.create')
+                            ->with('success', 'Donation submitted successfully!');
+        }
+
     }
 
 
-
-
-
-    public function landing()
-    {
+    public function landing(){
         return view('donationUser.landing');
     }
 
-    public function logout()
-    {
+    public function logout(){
         session()->flush();
         return redirect()->route('landing');
     }
 
-    public function campaigns()
-    {
+    public function campaigns(){
         return view('donationUser.campaigns');
     }
 
    
 
-public function showCampaign($id)
-{
-    $campaign = Campaign::findOrFail($id);
-    return view('donationUser.campaign_details', compact('campaign'));
-}
+    public function showCampaign($id){
+        $campaign = Campaign::findOrFail($id);
+        return view('donationUser.campaign_details', compact('campaign'));
+    }
 
-public function campaignDonations($id)
-{
-    $campaign = Campaign::with('donations')->findOrFail($id);
-    return view('donationUser.campaign_donation', compact('campaign'));
-}
+    public function campaignDonations($id){
+        $campaign = Campaign::with('donations')->findOrFail($id);
+        return view('donationUser.campaign_donation', compact('campaign'));
+    }
 
-public function showCampaignDonations($id)
-{
-    // Fetch the campaign with all its donations
-    $campaign = \App\Models\Campaign::with('donations')->findOrFail($id);
+    public function showCampaignDonations($id){
+        $campaign = \App\Models\Campaign::with('donations')->findOrFail($id);
 
-    // Return the Blade with the campaign data
-    return view('donationUser.campaign_donation', compact('campaign'));
-}
+        return view('donationUser.campaign_donation', compact('campaign'));
+    }
 
     
+    public function tracker(){
+        if (!session('user_id')) {
+            return redirect()->route('donationUser.login')->with('error', 'Please login first!');
+        }
+
+        $donations = donationList::where('user_id', session('user_id'))
+                                ->where('type', '!=', 'money')
+                                ->get();
+
+        $notifications = \App\Models\Notification::where('user_id', session('user_id'))
+                                                ->orderBy('created_at', 'desc')
+                                                ->get();
+
+        return view('donationUser.tracker', compact('donations', 'notifications'));
+    }
 
      
 }

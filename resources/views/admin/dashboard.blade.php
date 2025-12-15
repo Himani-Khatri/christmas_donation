@@ -8,8 +8,9 @@
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-dark px-4">
-    <span class="navbar-brand">👑 Admin Dashboard</span>
+    <span class="navbar-brand">Admin Dashboard</span>
     <a href="{{ route('admin.logout') }}" class="btn btn-danger btn-sm">Logout</a>
+    
 </nav>
 
 <div class="container mt-4">
